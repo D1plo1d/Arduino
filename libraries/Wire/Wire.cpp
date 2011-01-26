@@ -1,6 +1,7 @@
 /*
   TwoWire.cpp - TWI/I2C library for Wiring & Arduino
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+  Revised 9 June 2009 Christopher K. Johnson.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -73,6 +74,11 @@ void TwoWire::begin(int address)
   begin((uint8_t)address);
 }
 
+long unsigned int TwoWire::setSpeed(long unsigned int bitsPerSecond)
+{
+  return twi_setSpeed(bitsPerSecond);
+}
+
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity)
 {
   // clamp to buffer length
@@ -93,6 +99,46 @@ uint8_t TwoWire::requestFrom(int address, int quantity)
   return requestFrom((uint8_t)address, (uint8_t)quantity);
 }
 
+uint8_t TwoWire::requestFromAt(uint8_t address, uint8_t offset, uint8_t quantity)
+{
+  // clamp to buffer length
+  if(quantity > BUFFER_LENGTH){
+    quantity = BUFFER_LENGTH;
+  }
+  // perform blocking read into buffer
+  uint8_t read = twi_readFromAt(address, offset, rxBuffer, quantity);
+  // set rx buffer iterator vars
+  rxBufferIndex = 0;
+  rxBufferLength = read;
+
+  return read;
+}
+
+uint8_t TwoWire::requestFromAt(int address, int offset, int quantity)
+{
+  return requestFromAt((uint8_t)address, (uint8_t)offset, (uint8_t)quantity);
+}
+
+uint8_t TwoWire::requestFromAt2(uint8_t address, int offset, uint8_t quantity)
+{
+  // clamp to buffer length
+  if(quantity > BUFFER_LENGTH){
+    quantity = BUFFER_LENGTH;
+  }
+  // perform blocking read into buffer
+  uint8_t read = twi_readFromAt2(address, offset, rxBuffer, quantity);
+  // set rx buffer iterator vars
+  rxBufferIndex = 0;
+  rxBufferLength = read;
+
+  return read;
+}
+
+uint8_t TwoWire::requestFromAt2(int address, int offset, int quantity)
+{
+  return requestFromAt2((uint8_t)address, offset, (uint8_t)quantity);
+}
+
 void TwoWire::beginTransmission(uint8_t address)
 {
   // indicate that we are transmitting
@@ -107,6 +153,29 @@ void TwoWire::beginTransmission(uint8_t address)
 void TwoWire::beginTransmission(int address)
 {
   beginTransmission((uint8_t)address);
+}
+
+void TwoWire::beginTransmissionAt(uint8_t address, uint8_t offset)
+{
+  beginTransmission(address);
+  send(offset);
+}
+
+void TwoWire::beginTransmissionAt(int address, int offset)
+{
+  beginTransmissionAt((uint8_t)address, (uint8_t)offset);
+}
+
+void TwoWire::beginTransmissionAt2(uint8_t address, int offset)
+{
+  beginTransmission((uint8_t)address);
+  send((uint8_t)(offset >> 8));    // MSB of address transmitted first
+  send((uint8_t)(offset & 0xFF));  // LSB of address transmitted second
+}
+
+void TwoWire::beginTransmissionAt2(int address, int offset)
+{
+  beginTransmissionAt2((uint8_t)address, offset);
 }
 
 uint8_t TwoWire::endTransmission(void)

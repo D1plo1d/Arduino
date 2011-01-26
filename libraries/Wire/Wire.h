@@ -1,6 +1,7 @@
 /*
   TwoWire.h - TWI/I2C library for Arduino & Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+  Revised 31 May 2009 Christopher K. Johnson.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -24,6 +25,9 @@
 
 #define BUFFER_LENGTH 32
 
+#define STANDARD 100000L
+#define FAST 400000L
+
 class TwoWire
 {
   private:
@@ -46,11 +50,20 @@ class TwoWire
     void begin();
     void begin(uint8_t);
     void begin(int);
+    long unsigned int setSpeed(long unsigned int);
     void beginTransmission(uint8_t);
     void beginTransmission(int);
+    void beginTransmissionAt(uint8_t,uint8_t);
+    void beginTransmissionAt(int,int);
+    void beginTransmissionAt2(uint8_t,int);
+    void beginTransmissionAt2(int,int);
     uint8_t endTransmission(void);
     uint8_t requestFrom(uint8_t, uint8_t);
     uint8_t requestFrom(int, int);
+    uint8_t requestFromAt(uint8_t, uint8_t, uint8_t);
+    uint8_t requestFromAt(int, int, int);
+    uint8_t requestFromAt2(uint8_t, int, uint8_t);
+    uint8_t requestFromAt2(int, int, int);
     void send(uint8_t);
     void send(uint8_t*, uint8_t);
     void send(int);
